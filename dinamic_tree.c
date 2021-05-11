@@ -60,6 +60,7 @@ int main(){
       break;
     }
   }while(option!=0);
+  delete_tree(teste.root);
   return 0;
 }
 
