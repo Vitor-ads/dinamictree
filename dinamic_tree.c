@@ -24,7 +24,7 @@ typedef struct arvere{
   int tamanho;
 }tree;
 
-int caminhoglobal;
+int height;
 
 data* insert_data();
 bool insert_node(tree* target,node* valor);
@@ -36,6 +36,7 @@ bool search(node* root);
 bool found_key(node* raiz, int key);
 int path_menu(node* current);
 int options_menu();
+void delete_tree(node* root);
 
 int main(){
 
@@ -59,8 +60,17 @@ int main(){
       break;
     }
   }while(option!=0);
-  system("pause");
+  return 0;
+}
 
+void delete_tree(node* root){
+  for(int i=0; i<maxbranchs;i++){
+
+    if(root->next[i]!=NULL) delete_tree(root->next[i]);
+
+  }
+  free(root->value);
+  free(root);
 }
 
 int options_menu(){
@@ -84,13 +94,13 @@ int options_menu(){
 bool search(node* root){
     int codigo;
     bool achou = 0;
-    printf("\n digite o codigo a buscar:\t");
+    printf("\n digite o codigo a buscar:\n");
     scanf("%d",&codigo);
-    printf("\n-----%d-----", achou);
     achou = found_key(root,codigo);
-    printf("\n-----%d-----", achou);
-    if(achou==1)    printf("\ncodigo encontrado");
-    else printf("\ncodigo nao encontrado");
+
+    if(achou==1)    printf("\ncodigo encontrado\n");
+    else printf("\ncodigo nao encontrado\n");
+
     system("pause");
     return achou;
 }
@@ -126,8 +136,16 @@ void print_node(node* current){
   parametro: raiz da arvore
 */
 void print_tree(node* root){
-  print_data(root->value);
+  // primeira chamada
+  if(root->back==NULL){
+    print_data(root->value);
+  }else{
+    //chamada padrão
+    printf("\ncodigo: %i\tpai->codigo: %i",root->value->codigo,root->back->value->codigo);
+    printf("\nnome: %s\tpai->nome: %s",root->value->nome,root->back->value->nome);
+  }
   for(int i=0; i<maxbranchs;i++){
+    //condição de parada
     if(root->next[i]!=NULL) print_tree(root->next[i]);
   }
 }
@@ -138,23 +156,35 @@ void print_data(data* valor){
   printf("\nnome: %s ", valor->nome);
 }
 
-
 node* acha_caminho(node* corrente,int path,node* valor){
-
-  if(corrente==NULL){
-    corrente = valor;
-    return valor;
-  }
-  if(path==maxbranchs){
-    caminhoglobal = path_menu(corrente);
-    return acha_caminho(corrente,caminhoglobal,valor);
-  }
-  if(path==-1) acha_caminho(corrente->back,path_menu(corrente->back),valor);
-  else{
-    corrente->next[path] = acha_caminho(corrente->next[path],path_menu(corrente),valor);
+  // condição de parada
+  if(corrente == NULL)  return valor;
+  // primeira chamada
+  else if(path==maxbranchs){
+    height = 0;
     valor->back = corrente;
+    return acha_caminho(corrente,path_menu(corrente),valor);
   }
-  
+  // chamada padrão
+  else{
+    height++;
+    //se caminho escolhido está vazio
+    if(corrente->next[path]==NULL){
+      printf("\n DESEJA INSERIR NA POSICAO %d?(ENTER)", path+1);
+      fflush(stdin);
+      // confirma inserção
+      if(getchar()=='\n'){
+        valor->back = corrente;
+        corrente->next[path] = acha_caminho(corrente->next[path],path,valor);
+        return corrente->next[path];
+      // senao volta 1 nivel
+      }else return acha_caminho(corrente->back,path_menu(corrente->back),valor);
+    }
+    // se o caminho = -1 volta 1 node
+    else if(path==-1)  return acha_caminho(corrente->back,path_menu(corrente->back),valor);
+    // senao acha o caminho
+    else return acha_caminho(corrente->next[path],path_menu(corrente->next[path]),valor);
+  }
 }
 
 /*
@@ -168,12 +198,14 @@ bool insert_node(tree* target,node* valor){
   if(target->root == NULL){
     target->root = valor;
     target->tamanho++;
-    printf("novo no inserido na raiz: ");
+    printf("\nnovo no inserido na raiz: ");
     print_data(target->root->value);
     inseriu = true;
   }
   else{
     if(acha_caminho(target->root,maxbranchs,valor) == valor){
+      printf("\n novo no inserido com sucesso");
+      system("pause");
        inseriu = true;
        target->tamanho++;
     }
@@ -185,7 +217,6 @@ bool insert_node(tree* target,node* valor){
 // imprime opções de caminho e devolve caminho selecionado (-1 para voltar)
 int path_menu(node *current){  
   int option;
-
 
   do{
     system("cls");
