@@ -13,9 +13,10 @@ typedef struct data{
   char nome[maxsizestring];
 }data;
 
+typedef struct no no;
 typedef struct no{
   data* value;
-  no* back;
+  no *back;
   no *next[maxbranchs];
 }node;
 
@@ -40,7 +41,7 @@ void delete_tree(node* root);
 
 int main(){
 
-  arvere teste;
+  tree teste;
   teste.root = NULL;
   teste.tamanho = 0;
   int option;
@@ -216,7 +217,7 @@ bool insert_node(tree* target,node* valor){
 
 
 // imprime opções de caminho e devolve caminho selecionado (-1 para voltar)
-int path_menu(node *current){  
+int path_menu(node *current){
   int option;
 
   do{
@@ -225,7 +226,7 @@ int path_menu(node *current){
     printf("\nselecione um caminho:\n");
     for(int i=0; i<maxbranchs;i++){
       printf("%d, ", i+1 );
-    }    
+    }
     printf("\n 0 para voltar");
 
     scanf("%d",&option);
