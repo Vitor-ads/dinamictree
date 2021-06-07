@@ -115,7 +115,7 @@ bool found_key(node* raiz, int key){
   }
   else{
     for(int i=0; i<maxbranchs;i++){
-      if(raiz->next[i] != NULL )  return found_key(raiz->next[i], key);
+      if(raiz->next[i] != NULL && found_key(raiz->next[i], key)==true) return true;
     }
   }
 }
